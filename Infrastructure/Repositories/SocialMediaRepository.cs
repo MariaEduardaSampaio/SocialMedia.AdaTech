@@ -13,8 +13,15 @@ namespace Infrastructure.Repositories
             _socialMediaContext = socialMediaContext;
         }
 
-        public User AddUser(User user)
+        public User AddUser(UserRequest request)
         {
+            var user = new User()
+            {
+                Email = request.Email,
+                Password = request.Password,
+                Name = request.Name
+            };
+
             _socialMediaContext.Users.Add(user);
             _socialMediaContext.SaveChanges();
             return user;
@@ -23,7 +30,11 @@ namespace Infrastructure.Repositories
         public User? DeleteUser(int id)
         {
             var user = _socialMediaContext.Users.Find(id);
-            _socialMediaContext.Users.Remove(user);
+
+            if (user is not null)
+                _socialMediaContext.Users.Remove(user);
+
+            _socialMediaContext.SaveChanges();
             return user;
         }
 
@@ -56,9 +67,8 @@ namespace Infrastructure.Repositories
                 user.Name = request.Name ?? user.Name;
                 user.Email = request.Email ?? user.Email;
                 user.Password = request.Password ?? user.Password;
+                _socialMediaContext.SaveChanges();
             }
-
-            _socialMediaContext.SaveChanges();
 
             return user;
         }
