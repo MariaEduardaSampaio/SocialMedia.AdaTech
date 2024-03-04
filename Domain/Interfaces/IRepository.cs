@@ -4,7 +4,7 @@ namespace Domain.Interfaces
 {
     public interface IRepository
     {
-        User AddUser(User user);
+        User AddUser(UserRequest request);
         User? ReadUserByName(string name);
         User? ReadUserByEmail(string email);
         User? ReadUserByID(int id);
