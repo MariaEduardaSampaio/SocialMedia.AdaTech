@@ -1,3 +1,6 @@
+using Domain.Interfaces;
+using Infrastructure.Context;
+using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -11,6 +14,11 @@ namespace SocialMedia.AdaTech
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddDbContext<SocialMediaContext>(); 
+            builder.Services.AddScoped<IRepository, SocialMediaRepository>();
+
+            builder.Services.AddScoped<TokenService>();
 
             builder.Services.AddAuthentication(config =>
             {
@@ -65,7 +73,6 @@ namespace SocialMedia.AdaTech
             builder.Services.AddControllers();
             builder.Services.AddHttpContextAccessor(); 
 
-            builder.Services.AddScoped<TokenService>();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
