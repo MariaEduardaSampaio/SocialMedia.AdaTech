@@ -1,0 +1,6 @@
+@SocialMedia.AdaTech_HostAddress = http://localhost:5179
+
+GET {{SocialMedia.AdaTech_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
