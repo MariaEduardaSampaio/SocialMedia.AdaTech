@@ -1,6 +1,5 @@
-﻿using Microsoft.Extensions.Primitives;
+﻿using Domain.Entities;
 using Microsoft.IdentityModel.Tokens;
-using SocialMedia.AdaTech.Entities;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -16,7 +15,7 @@ namespace SocialMedia.AdaTech.Services
             _configuration = configuration;
         }
 
-        public string GerarToken(Credencial credencial)
+        public string GerarToken(Credential credential)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
 
@@ -24,7 +23,7 @@ namespace SocialMedia.AdaTech.Services
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                    new Claim(ClaimTypes.Name, credencial.Email)
+                    new Claim(ClaimTypes.Name, credential.Email)
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(
