@@ -1,7 +1,8 @@
 ﻿using Domain.Entities;
+using Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SocialMedia.AdaTech.Services;
+using SocialMedia.AdaTech.Filters;
 
 namespace AppAuth.Controllers
 {
@@ -10,23 +11,25 @@ namespace AppAuth.Controllers
     public class UserController : ControllerBase
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly TokenService _tokenService;
+        private readonly ITokenService _tokenService;
+        private readonly IUserService _userService;
 
-        public UserController(TokenService tokenService, IHttpContextAccessor httpContextAccessor)
+        public UserController(ITokenService tokenService, IHttpContextAccessor httpContextAccessor, IUserService userService)
         {
             _httpContextAccessor = httpContextAccessor;
             _tokenService = tokenService;
+            _userService = userService;
         }
 
         [HttpPost("login")]
-        [AllowAnonymous]
+        [ServiceFilter(typeof(NotLoggedInFilter))]
         public IActionResult Login(Credential credencial)
         {
-            // 1. Buscar um usuário que tenha o mesmo username e senha que a credencial no banco
-
-            if (!_httpContextAccessor.HttpContext.Request.Cookies.ContainsKey("jwt"))
+            try
             {
-                if (credencial.Email != "duda@gmail.com" && credencial.Password != "123Seguro&")
+                var user = _userService.ReadUserByEmail(credencial.Email);
+
+                if (user is null || user.Password != credencial.Password)
                     return NotFound("Usuário ou senha incorretos.");
                 else
                 {
@@ -40,28 +43,124 @@ namespace AppAuth.Controllers
                     Response.Cookies.Append("jwt", chaveToken, cookieOptions);
 
                     return Ok("Usuário logado com sucesso!");
-                }
+                }                 
+            } catch(Exception ex)
+            {
+                return BadRequest("Não foi possível fazer o login: " + ex.Message);
             }
-            else
-                return BadRequest("Usuário já está logado.");
         }
 
         [HttpPost("logout")]
+        [ServiceFilter(typeof(VerifyJWTFilter))]
         public IActionResult Logout()
         {
-            if (_httpContextAccessor.HttpContext.Request.Cookies.ContainsKey("jwt"))
-            {
-                Response.Cookies.Delete("jwt");
-                return Ok("Usuário deslogado com sucesso!");
-            }
-            else
-                return BadRequest("Usuário precisa estar logado.");
+            Response.Cookies.Delete("jwt");
+            return Ok("Usuário deslogado com sucesso!");
         }
 
-        [HttpGet("darboasvindas")]
-        public IActionResult DarBoasVindas()
+        [HttpPost("addUser")]
+        [AllowAnonymous]
+        public IActionResult AddUser([FromBody] UserRequest request)
         {
-            return Ok("Bem-vindo ao nosso sistema!");
+            try
+            {
+                var user = _userService.AddUser(request);
+                return Ok(new { Message = "Usuário criado com sucesso!", User = user });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("readUserByName")]
+        [ServiceFilter(typeof(VerifyJWTFilter))]
+        public IActionResult ReadUserByName([FromQuery] string name)
+        {
+            try
+            {
+                var user = _userService.ReadUserByName(name);
+                return Ok(new { Message = "Usuário encontrado com sucesso!", User = user });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("readUserByEmail")]
+        [ServiceFilter(typeof(VerifyJWTFilter))]
+        public IActionResult ReadUserByEmail([FromQuery] string email)
+        {
+            try
+            {
+                var user = _userService.ReadUserByEmail(email);
+                return Ok(new { Message = "Usuário encontrado com sucesso!", User = user });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("readUserByID")]
+        [ServiceFilter(typeof(VerifyJWTFilter))]
+        public IActionResult ReadUserByID([FromQuery] int id)
+        {
+            try
+            {
+                var user = _userService.ReadUserByID(id);
+                return Ok(new { Message = "Usuário encontrado com sucesso!", User = user });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("readAllUsers")]
+        [ServiceFilter(typeof(VerifyJWTFilter))]
+        public IActionResult ReadAllUsers()
+        {
+            try
+            {
+                var users = _userService.ReadAllUsers();
+                return Ok(new { Message = "Usuários encontrados com sucesso!", User = users });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("updateUser")]
+        [ServiceFilter(typeof(VerifyJWTFilter))]
+        public IActionResult UpdateUser([FromBody] UserRequest request, [FromQuery] int id)
+        {
+            try
+            {
+                var user = _userService.UpdateUser(request, id);
+                return Ok(new { Message = "Usuário atualizado com sucesso!", User = user });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("deleteUser")]
+        [ServiceFilter(typeof(VerifyJWTFilter))]
+        public IActionResult DeleteUser([FromQuery] int id)
+        {
+            try
+            {
+                var user = _userService.DeleteUser(id);
+                return Ok(new { Message = "Usuário deletado com sucesso!", User = user });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
