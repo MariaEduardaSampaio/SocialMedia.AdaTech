@@ -4,6 +4,7 @@ using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using SocialMedia.AdaTech.Filters;
 using SocialMedia.AdaTech.Services;
 using System.Text;
 
@@ -18,7 +19,11 @@ namespace SocialMedia.AdaTech
             builder.Services.AddDbContext<SocialMediaContext>(); 
             builder.Services.AddScoped<IRepository, SocialMediaRepository>();
 
-            builder.Services.AddScoped<TokenService>();
+            builder.Services.AddScoped<VerifyJWTFilter>(); 
+            builder.Services.AddScoped<NotLoggedInFilter>();
+
+            builder.Services.AddScoped<ITokenService, TokenService>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
             builder.Services.AddAuthentication(config =>
             {
