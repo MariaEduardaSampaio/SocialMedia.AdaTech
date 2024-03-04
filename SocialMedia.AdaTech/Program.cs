@@ -12,8 +12,6 @@ namespace SocialMedia.AdaTech
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddAuthentication(config =>
             {
                 config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -26,7 +24,7 @@ namespace SocialMedia.AdaTech
                     config.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("gX8Nsdsdasdsdsdasddsad7KbpE9JqF2Yr")),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("M!hqM5ZA*^%buB*hkgY4Vmwac5UjC5de")),
                         ValidateIssuer = false,
                         ValidateAudience = false,
                         ValidIssuer = "social_media",
