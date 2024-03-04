@@ -1,8 +1,8 @@
 ﻿namespace Domain.Entities
 {
-    public class Credencial
+    public class Credential
     {
         public string Email { get; set; }
-        public string Senha { get; set; }
+        public string Password { get; set; }
     }
 }
