@@ -1,12 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using SocialMedia.AdaTech.Entities;
 using SocialMedia.AdaTech.Services;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace AppAuth.Controllers
 {
@@ -15,25 +10,23 @@ namespace AppAuth.Controllers
     public class UserController : ControllerBase
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IConfiguration _configuration;
         private readonly TokenService _tokenService;
 
-        public UserController(IConfiguration configuration, TokenService tokenService, IHttpContextAccessor httpContextAccessor)
+        public UserController(TokenService tokenService, IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
-            _configuration = configuration;
             _tokenService = tokenService;
         }
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public IActionResult Login(Credencial credencial)
+        public IActionResult Login(Credential credencial)
         {
             // 1. Buscar um usuário que tenha o mesmo username e senha que a credencial no banco
 
             if (!_httpContextAccessor.HttpContext.Request.Cookies.ContainsKey("jwt"))
             {
-                if (credencial.Email != "duda@gmail.com" && credencial.Senha != "123Seguro&")
+                if (credencial.Email != "duda@gmail.com" && credencial.Password != "123Seguro&")
                     return NotFound("Usuário ou senha incorretos.");
                 else
                 {
